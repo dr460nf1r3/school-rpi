@@ -1,0 +1,16 @@
+name: Sync Tailscale ACLs
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  acls:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+    
