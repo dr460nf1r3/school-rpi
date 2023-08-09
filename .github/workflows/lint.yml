@@ -1,4 +1,4 @@
-name: Sync Tailscale ACLs
+name: Test code with shellcheck
 
 on:
   push:

@@ -6,6 +6,9 @@ CURRENT_IMG=2023-05-03-raspios-bullseye-arm64-lite.img
 SDCARD_PATH=/dev/sdX
 WORK_DIR=./tmp
 
+# Abort on error
+set -e
+
 # Check for root rights
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -18,22 +21,19 @@ mkdir -p "$WORK_DIR" \
 
 # Get current image if not present
 if [ ! -f "$CURRENT_IMG" ]; then
-    wget "$CURRENT_DL" || exit 2
-    tar xfv "$CURRENT_IMG".xz || exit 3
+    wget -c "$CURRENT_DL" || exit 2
+    unxz "$CURRENT_IMG".xz || exit 3
 fi
 
+# Mount image to loop filesystem
+LOOP_DIR=$(losetup -fP --show "$CURRENT_IMG")
+mount "$LOOP_DIR"p2 /mnt
+mount "$LOOP_DIR"p2 /mnt/boot
+
 # Write image to sd card & remove image if success
-dd if="$CURRENT_IMG" of="$SDCARD_PATH" status=progress bs=1M \
-    && rm "$CURRENT_IMG" || exit 4
+# dd if="$CURRENT_IMG" of="$SDCARD_PATH" status=progress bs=1M \
+#     && rm "$CURRENT_IMG" || exit 4
 
 # Return to previous dir
+# losetup -d /dev/loop0
 popd 
-
-# Mount sd card
-mkdir -p /mnt/sdcard/{boot,root}
-mount "$SDCARD_PATH"1 /mnt/sdcard/boot
-mount "$SDCARD_PATH"2 /mnt/sdcard/root
-
-# Copy files
-umount "$SDCARD_PATH"1 "$SDCARD_PATH"2 
-rm -r /mnt/sdcard
