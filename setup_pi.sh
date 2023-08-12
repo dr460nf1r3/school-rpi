@@ -1,17 +1,8 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2164
-# Parameters
-GROUPS=(museum event ohmega)
-INITIAL_PW=zuaendern
-NETDATA_CLAIM_TOKEN=
-NETDATA_CLAIM_ROOM=
-PROJECT_ROOT=/opt/licht
-PROJECT_DEPS=(python3)
-SYSTEM_DEPS=(fish ufw curl)
-TAILSCALE_AUTHKEY=
-USERS_EVENT=(dherzog uziegelmann)
-USERS_MUSEUM=(seberhart dkaestner)
-USERS_OHMEGA=(njensch)
+# shellcheck disable=SC2164,SC1091
+
+# Source configuration
+source ./config
 
 # Check for root rights
 if [ "$EUID" -ne 0 ]; then
@@ -24,7 +15,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update && apt-get upgrade
 
 # Some basic tools
-apt-get install "${SYSTEM_DEPS[@]}"
+apt-get install -y "${SYSTEM_DEPS[@]}"
 
 # Configure firewall
 ufw default deny incoming
@@ -33,52 +24,60 @@ ufw allow ssh
 ufw enable
 
 # Netdata monitoring
-curl -fsSL https://my-netdata.io/kickstart.sh \
-    | sh netdata-kickstart.sh \
-    --nightly-channel \
-    --claim-token "$NETDATA_CLAIM_TOKEN" \
-    --claim-rooms "$NETDATA_CLAIM_ROOM" \
-    --claim-url https://app.netdata.cloud
+if [ -n "$NETDATA_CLAIM_TOKEN" ]; then
+    wget https://my-netdata.io/kickstart.sh &&
+        sh kickstart.sh \
+            --nightly-channel \
+            --claim-token "$NETDATA_CLAIM_TOKEN" \
+            --claim-rooms "$NETDATA_CLAIM_ROOM" \
+            --claim-url https://app.netdata.cloud
+else 
+    echo "No Netdata token provided, skipping installation"
+fi
 
 # Tailscale for easy access
-curl -fsSL https://tailscale.com/install.sh | sh \
-    && tailscale up --authkey "$TAILSCALE_AUTHKEY"
+if [ -n "$TAILSCALE_AUTHKEY" ]; then
+    curl -fsSL https://tailscale.com/install.sh | sh
+    tailscale up --authkey "$TAILSCALE_AUTHKEY"
+else
+    echo "No Tailscale authkey provided, skipping installation"
+fi
 
 # Install dependencies
-apt-get install "${PROJECT_DEPS[@]}"
+apt-get install -y "${PROJECT_DEPS[@]}"
 
 # Create groups
-for GROUP in "${GROUPS[@]}"; do
-    groupadd "$GROUP"
+for i in "${GROUP[@]}"; do
+    groupadd "$i"
 done
 
 # Create admins
-for USER in "${USERS_OHMEGA[@]}"; do
-    useradd -m -g ohmega -s /bin/bash "$USER"
-    echo "$INITIAL_PW" | passwd --stdin "$USER"
-    passwd --expire "$USER"
+for i in "${USERS_OHMEGA[@]}"; do
+    useradd -m -g ohmega -s /bin/bash "$i"
+    echo  "$i":"$INITIAL_PW" | chpasswd
+    passwd --expire "$i"
 done
 
 # Create event users
-for USER in "${USERS_EVENT[@]}"; do
-    useradd -m -g event -s /bin/bash "$USER"
-    echo "$INITIAL_PW" | passwd --stdin "$USER"
-    passwd --expire "$USER"
+for i in "${USERS_EVENT[@]}"; do
+    useradd -m -g event -s /bin/bash "$i"
+    echo  "$i":"$INITIAL_PW" | chpasswd
+    passwd --expire "$i"
 done
 
 # Create museum users
-for USER in "${USERS_MUSEUM[@]}"; do
-    useradd -m -g museum -s /bin/bash "$USER"
-    echo "$INITIAL_PW" | passwd --stdin "$USER"
-    passwd --expire "$USER"
+for i in "${USERS_MUSEUM[@]}"; do
+    useradd -m -g museum -s /bin/bash "$i"
+    echo  "$i":"$INITIAL_PW" | chpasswd
+    passwd --expire "$i"
 done
 
 # Create project root
 mkdir -p "$PROJECT_ROOT"/{OHMegascripts,sequenzen}
 
 # Place scripts
-cp ./OHMegascripts/* "$PROJECT_ROOT"/OHMegascripts
-cp ./alle-sequenzen.sh "$PROJECT_ROOT"
+cp ./scripts/* "$PROJECT_ROOT"/OHMegascripts
+cp ./misc/alle-sequenzen.sh "$PROJECT_ROOT"
 
 # Set owner/groups
 chown -R ohmega:ohmega "$PROJECT_ROOT"

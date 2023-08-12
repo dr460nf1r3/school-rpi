@@ -1,0 +1,22 @@
+# Project configuration
+PROJECT_DEPS=(python3)
+PROJECT_ROOT=/opt/licht
+
+# Groups to add to the system
+GROUP=(museum event ohmega)
+
+# User config
+USERS_EVENT=(dherzog uziegelmann)
+USERS_MUSEUM=(seberhart dkaestner)
+USERS_OHMEGA=(njensch)
+INITIAL_PW=zuaendern
+
+# Netdata token and room
+NETDATA_CLAIM_TOKEN=
+NETDATA_CLAIM_ROOM=
+
+# Tailscale authkey
+TAILSCALE_AUTHKEY=
+
+# Generic system dependencies
+SYSTEM_DEPS=(fish ufw curl wget)

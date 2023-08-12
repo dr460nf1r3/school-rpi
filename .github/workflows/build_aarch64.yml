@@ -1,0 +1,38 @@
+name: Build aarch64 image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rpi-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1440
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: pguyot/arm-runner-action@v2
+        id: rpi_build
+        with:
+          base_image: raspios_lite_arm64:latest
+          commands: |
+              bash -x setup_pi.sh
+          image_additional_mb: 1024
+      - name: Compress image
+        run: |
+          mv ${{ steps.rpi_build.outputs.image }} raspbian.img
+          xz -0 -T 0 -v raspbian.img
+      - name: Upload created image
+        uses: actions/upload-artifact@v2
+        with:
+          name: Raspbian image
+          path: raspbian.img.xz
