@@ -23,6 +23,14 @@ ufw default allow outgoing
 ufw allow ssh
 ufw enable
 
+# Configure DHCP
+cat <<EOF >> /etc/dhcpcd.conf
+interface wlan0
+static ip_address=$IP_ADRESS
+static routers=$IP_GATEWAY
+static domain_name_servers=$IP_DNS
+EOF
+
 # Netdata monitoring
 if [ -n "$NETDATA_CLAIM_TOKEN" ]; then
     wget https://my-netdata.io/kickstart.sh &&

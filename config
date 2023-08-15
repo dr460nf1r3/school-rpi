@@ -1,3 +1,8 @@
+# IP configuration
+IP_ADDRESS=10.2.13.7
+IP_GATEWAY=10.10.0.1
+IP_DNS="10.10.0.1 1.1.1.1"
+
 # Project configuration
 PROJECT_DEPS=(python3)
 PROJECT_ROOT=/opt/licht
