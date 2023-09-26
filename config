@@ -1,4 +1,5 @@
 # IP configuration
+# shellcheck disable=SC2034,2148
 IP_ADDRESS=10.2.13.7
 IP_GATEWAY=10.10.0.1
 IP_DNS="10.10.0.1 1.1.1.1"
@@ -11,10 +12,10 @@ PROJECT_ROOT=/opt/licht
 GROUP=(museum event ohmega)
 
 # User config
-USERS_EVENT=(dherzog uziegelmann)
-USERS_MUSEUM=(seberhart dkaestner)
-USERS_OHMEGA=(njensch)
-INITIAL_PW=zuaendern
+USERS_EVENT=(dherzog uziegelm)
+USERS_MUSEUM=(seberhar dkaestne)
+USERS_OHMEGA=(njensch mjanders admin)
+INITIAL_PW=supersecretpassword
 
 # Netdata token and room
 NETDATA_CLAIM_TOKEN=
