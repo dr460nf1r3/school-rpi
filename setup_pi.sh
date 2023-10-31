@@ -90,12 +90,13 @@ mkdir -p "$PROJECT_ROOT"/OHMegascripts
 # Place scripts
 cp ./scripts/M0{1,2}* "$PROJECT_ROOT"/OHMegascripts
 cp ./scripts/M0{3,4}* "$PROJECT_ROOT"
-cp ./scripts/alle-sequenzen.sh "$PROJECT_ROOT"
+cp ./scripts/{run_sequence,alle-sequenzen}.sh "$PROJECT_ROOT"
+cp ./scripts/ "$PROJECT_ROOT"
 
 # Set owner/groups
 chown -R event:event "$PROJECT_ROOT"
 chown -R ohmega:event "$PROJECT_ROOT"/OHMegascripts
-chown museum:event "$PROJECT_ROOT"/alle-sequenzen.sh
+chown museum:event "$PROJECT_ROOT"/{run_sequence,alle-sequenzen}.sh
 
 # Set permissions
 chmod 2775 "$PROJECT_ROOT"
